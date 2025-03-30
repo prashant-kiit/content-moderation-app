@@ -48,7 +48,8 @@ def modertateUsingGrok(request):
             max_tokens=None,
             timeout=None,
             max_retries=2,
-            api_key="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")
+            # api_key="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"
+            )
         
         messages = [
             (
