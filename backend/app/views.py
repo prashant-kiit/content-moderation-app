@@ -1,3 +1,5 @@
-from django.shortcuts import render
+from django.http import JsonResponse
 
-# Create your views here.
+def modertateUsingGrok(request):
+    content = request.GET.get('content')
+    return JsonResponse({"message": f"Content under examination: {content}!"}, status=200)
