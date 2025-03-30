@@ -33,7 +33,8 @@ function App() {
       });
 
       if (!response.ok) {
-        throw new Error('Moderation API request failed');
+        const result = await response.json();
+        throw new Error('Moderation API request failed.' + JSON.stringify(result));
       }
 
       const result = await response.json();
