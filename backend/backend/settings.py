@@ -25,12 +25,13 @@ SECRET_KEY = 'django-insecure-ebk1f4leadr=uurr)tk9=f*b^=xdsx&!vef_x_6b*(76wk_mz4
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,6 +42,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -70,6 +72,17 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
+# Allow requests from specific frontend origins
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # Allow Vite/React frontend
+]
+
+# Allow all headers and methods (Optional)
+CORS_ALLOW_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+CORS_ALLOW_HEADERS = ["*"]
+
+# Allow preflight requests (Fixes your issue)
+CORS_ALLOW_CREDENTIALS = True  
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -99,6 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
 
 
 # Internationalization

@@ -11,6 +11,7 @@ interface ModeratedContent {
 function App() {
   const [currentContent, setCurrentContent] = useState('');
   const [moderatedContent, setModeratedContent] = useState<ModeratedContent[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const stats = {
     total: moderatedContent.length,
@@ -18,19 +19,40 @@ function App() {
     rejected: moderatedContent.filter(c => c.status === 'rejected').length,
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentContent.trim()) return;
 
-    const newContent: ModeratedContent = {
-      id: Date.now().toString(),
-      content: currentContent,
-      status: Math.random() > 0.5 ? 'approved' : 'rejected', // Simulate random moderation decision
-      timestamp: new Date(),
-    };
+    try {
+      setIsLoading(true);
+      const response = await fetch(`http://localhost:8000/moderate/grok?content=${encodeURIComponent(currentContent)}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
 
-    setModeratedContent([newContent, ...moderatedContent]);
-    setCurrentContent('');
+      if (!response.ok) {
+        throw new Error('Moderation API request failed');
+      }
+
+      const result = await response.json();
+      
+      const newContent: ModeratedContent = {
+        id: Date.now().toString(),
+        content: currentContent,
+        status: result.status,
+        timestamp: new Date(),
+      };
+
+      setModeratedContent([newContent, ...moderatedContent]);
+      setCurrentContent('');
+    } catch (error) {
+      console.error('Error during content moderation:', error);
+      alert('Failed to moderate content. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -57,10 +79,17 @@ function App() {
             <div className="mt-3 flex justify-end">
               <button
                 type="submit"
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-                disabled={!currentContent.trim()}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+                disabled={!currentContent.trim() || isLoading}
               >
-                Submit for Review
+                {isLoading ? (
+                  <>
+                    <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  'Submit for Review'
+                )}
               </button>
             </div>
           </form>
